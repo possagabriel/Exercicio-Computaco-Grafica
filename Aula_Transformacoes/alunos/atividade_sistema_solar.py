@@ -1,5 +1,6 @@
 # ATIVIDADE: mini sistema solar com composição de matrizes.
 # Leia ATIVIDADE.md. Altere apenas os trechos marcados com TODO.
+# Alunos: Gabriel Possa Lima, Darlan José dos Santos
 # ESC fecha. P salva capturas/resultado.png para a entrega.
 import argparse
 
@@ -47,23 +48,45 @@ class SistemaSolar(Base):
         self.anguloOrbitaLua = 0.0
 
     def update(self):
-        # TODO 5: setas para cima/baixo ("up"/"down") alteram self.velocidadeOrbita
-        #         (use isKeyPressed e não deixe a velocidade ficar negativa)
+        # A velocidade varia por segundo, independentemente da taxa de quadros.
+        if self.input.isKeyPressed("up"):
+            self.velocidadeOrbita += 0.8 * self.deltaTime
+        if self.input.isKeyPressed("down"):
+            self.velocidadeOrbita = max(
+                0.0, self.velocidadeOrbita - 0.8 * self.deltaTime
+            )
 
         self.anguloSol += self.velocidadeSol * self.deltaTime
         self.anguloOrbita += self.velocidadeOrbita * self.deltaTime
         self.anguloRotacaoPlaneta += self.velocidadeRotacaoPlaneta * self.deltaTime
         self.anguloOrbitaLua += self.velocidadeOrbitaLua * self.deltaTime
 
-        # TODO 1: o sol deve girar em torno do próprio centro (use self.anguloSol)
-        matrizSol = Matrix.make_scale(0.25)
+        # Como não há translação, esta rotação ocorre no centro do sol.
+        matrizSol = (
+            Matrix.make_rotation_z(self.anguloSol)
+            @ Matrix.make_scale(0.25)
+        )
 
-        # TODO 2: o planeta deve ORBITAR o sol (use self.anguloOrbita)
-        # TODO 3: o planeta deve GIRAR em torno do próprio eixo (use self.anguloRotacaoPlaneta)
-        matrizPlaneta = Matrix.make_translation(RAIO_ORBITA_PLANETA, 0, 0) @ Matrix.make_scale(0.1)
+        # R @ T gira o vetor de translação e cria a órbita. A rotação própria
+        # fica à direita de T para afetar o planeta sem alterar sua posição.
+        matrizOrbitaPlaneta = (
+            Matrix.make_rotation_z(self.anguloOrbita)
+            @ Matrix.make_translation(RAIO_ORBITA_PLANETA, 0, 0)
+        )
+        matrizPlaneta = (
+            matrizOrbitaPlaneta
+            @ Matrix.make_rotation_z(self.anguloRotacaoPlaneta)
+            @ Matrix.make_scale(0.1)
+        )
 
-        # TODO 4: a lua deve orbitar o PLANETA, acompanhando-o (use self.anguloOrbitaLua)
-        matrizLua = Matrix.make_scale(0.05)
+        # Reutilizar a órbita do planeta faz a lua acompanhar sua posição, sem
+        # herdar a rotação própria do planeta.
+        matrizLua = (
+            matrizOrbitaPlaneta
+            @ Matrix.make_rotation_z(self.anguloOrbitaLua)
+            @ Matrix.make_translation(RAIO_ORBITA_LUA, 0, 0)
+            @ Matrix.make_scale(0.05)
+        )
 
         glClear(GL_COLOR_BUFFER_BIT)
         glUseProgram(self.programRef)
