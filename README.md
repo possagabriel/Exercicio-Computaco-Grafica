@@ -24,6 +24,12 @@ Os slides de cada aula estão na pasta correspondente (`Aula_*/*.pptx`).
 **Exercícios:** veja [EXERCICIOS.md](EXERCICIOS.md) para a lista das atividades, como entregar e
 os critérios de avaliação.
 
+## Entrega
+
+- [Mini sistema solar](Aula_Transformacoes/alunos/README.md)
+- [Braço robótico](Aula_GrafoCena/alunos/README.md)
+- [Cubo com satélite texturizado](Aula_Texturas/alunos/README.md)
+
 ## Estrutura do repositório
 
 ```
